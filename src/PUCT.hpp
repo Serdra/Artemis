@@ -80,6 +80,19 @@ struct PUCTTree {
         }
     }
 
+    void resize(uint32_t newSize) {
+        // Delete the old tree first to prevent OOM
+        if(tree != nullptr) {
+            delete[] tree;
+            tree = nullptr;
+        }
+        
+        // Allocate new tree with new size
+        size = newSize;
+        tree = new PUCTNode[size];
+        head = 1; // Reset head pointer
+    }
+
     // Const index operator - returns value
     PUCTNode operator[](uint32_t index) const {
         if (index >= size) {

@@ -35,38 +35,6 @@ void UCI() {
     std::cout << "option name nnue_path type string default master.nnue" << std::endl;
     std::cout << "uciok" << std::endl;
 
-    // Deals with option setting
-    while(true) {
-        if(!getline(std::cin, command)) return;
-        std::vector<std::string> split = splitString(command, ' ');
-        if(split.size() == 0) continue;
-
-        if(split[0] == "isready") {
-            std::cout << "readyok" << std::endl;
-            break;
-        }
-
-        else if (split[0] == "setoption") {
-            if(split.size() != 5) continue; 
-            if(split[1] != "name") continue;
-            if(split[3] != "value") continue;
-
-            // Control options here
-            if(lower(split[2]) == "hash") {
-                hash = std::stoi(split[4]);
-            }
-
-            if(lower(split[2]) == "UCI_Chess960") {
-                chess_960 = lower(split[4]) == "true";
-            }
-
-            if(split[2] == "nnue_path") {
-                nnue_path = split[4];
-            }
-        }
-
-        else if(split[0] == "quit") return;
-    }
     VALUE_NN::init(nnue_path);
 
     chess::Board board;
@@ -80,6 +48,27 @@ void UCI() {
 
         if(split[0] == "isready") {
             std::cout << "readyok\n";
+        }
+
+        else if (split[0] == "setoption") {
+            if(split.size() != 5) continue; 
+            if(split[1] != "name") continue;
+            if(split[3] != "value") continue;
+
+            // Control options here
+            if(lower(split[2]) == "hash") {
+                hash = std::stoi(split[4]);
+                tree.resize((1024 * 1024 * hash) / sizeof(PUCTNode));
+            }
+
+            if(lower(split[2]) == "UCI_Chess960") {
+                chess_960 = lower(split[4]) == "true";
+            }
+
+            if(split[2] == "nnue_path") {
+                nnue_path = split[4];
+                VALUE_NN::init(nnue_path);
+            }
         }
 
         else if(split[0] == "position") {
