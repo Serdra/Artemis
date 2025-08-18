@@ -24,7 +24,7 @@ chess::Move PUCTSearch(chess::Board pos, PUCTTree &tree, StopType stop_type, uin
         tree.select(path, new_pos);
 
         // Evaluates node
-        float value = tanh(VALUE_NN::eval(new_pos, acc));
+        float value = VALUE_NN::eval(new_pos, acc);
 
         // Backs up node
         tree.backup(path, value);

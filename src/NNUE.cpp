@@ -66,5 +66,5 @@ float VALUE_NN::eval(chess::Board &pos, Accumulator &accumulator) {
         output += accumulator.data[i] * outputWeights[i];
     }
 
-    return output / (float)(Q1 * Q1 * Q2);
+    return tanh(output / (float)(Q1 * Q1 * Q2));
 }
