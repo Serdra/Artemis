@@ -18,8 +18,25 @@ struct PUCTNode {
     uint16_t move;
     uint8_t num_children;
 
-    uint8_t flags; // Unused
+    uint8_t flags = 0; // Unused
     PUCTNode(){};
+
+    bool isSolved() {
+        return (flags & 0b11) != 0;
+    }
+
+    float getSolution() {
+        if(flags & 0b11 == 1) return 1;
+        return -1;
+    }
+
+    // In theory, draws should be considered too. However the implementation of that is a bit annoying,
+    // and mates are more important anyway.
+    void setSolution(float value) {
+        flags &= 0b11111100;
+        if(value == 1) flags ^= 1;
+        if(value == -1) flags ^= 2;
+    }
 };
 
 // Used for PV and such

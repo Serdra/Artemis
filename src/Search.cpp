@@ -23,11 +23,17 @@ chess::Move PUCTSearch(chess::Board pos, PUCTTree &tree, StopType stop_type, uin
         // Gets path
         tree.select(path, new_pos);
 
-        // Evaluates node
-        float value = VALUE_NN::eval(new_pos, acc);
+        // If node is already solved, there's no need to evaluate it
+        if(tree[path[path.size - 1]].isSolved()) {
+            tree.backup(path, tree[path[path.size - 1]].getSolution());
+        }
+        else {
+            // Evaluates node
+            float value = VALUE_NN::eval(new_pos, acc);
 
-        // Backs up node
-        tree.backup(path, value);
+            // Backs up node
+            tree.backup(path, value);
+        }
 
         // Updates depth
         depth *= depthDecay;

@@ -19,6 +19,8 @@ void PUCTTree::select(Path &path, chess::Board &board) {
         // If there are no children, this is a terminal node, so we break
         if(tree[curr].num_children == 0) break;
 
+        if(tree[curr].isSolved()) break;
+
         uint32_t best_child = -1;
         float best_child_value = -__FLT_MAX__;
 
@@ -63,6 +65,7 @@ void PUCTTree::expand(uint32_t node_to_expand, chess::Board &board) {
         tree[head + i].num_children = 0;
         tree[head + i].score = 0;
         tree[head + i].first_child = 0;
+        tree[head + i].flags = 0;
     }
 
     tree[node_to_expand].first_child = head;
@@ -71,10 +74,34 @@ void PUCTTree::expand(uint32_t node_to_expand, chess::Board &board) {
 }
 
 void PUCTTree::backup(Path &path, float value) {
-    for(int i = path.size - 1; i >= 0; i--) {
+    // Handle the leaf node seperately, as we always update solution if necessary there
+    tree[path[path.size - 1]].score += value;
+    tree[path[path.size - 1]].visits++;
+    if(value == 1 || value == -1) {
+        tree[path[path.size - 1]].setSolution(value);
+    }
+    value = -value;
+
+    for(int i = path.size - 2; i >= 0; i--) {
         tree[path[i]].score += value;
         tree[path[i]].visits++;
         value = -value;
+
+        if(path[i] == 0) continue;
+
+        // We can set this automatically, without checking siblings
+        if(tree[path[i + 1]].isSolved() && tree[path[i + 1]].getSolution() == 1) {
+            tree[path[i]].setSolution(-1);
+        }
+
+        // We need to check that all moves are a loss to know that this node is a loss
+        if(tree[path[i + 1]].isSolved() && tree[path[i + 1]].getSolution() == -1) {
+            bool canSet = true;
+            for(int j = tree[path[i]].first_child; j < tree[path[i]].first_child + tree[path[i]].num_children; j++) {
+                if(!tree[j].isSolved() || tree[j].getSolution() != -1) canSet = false;
+            }
+            if(canSet) tree[path[i]].setSolution(1);
+        }
     }
 }
 
