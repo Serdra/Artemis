@@ -24,12 +24,15 @@ void UCI() {
     uint32_t hash = 64;
     bool chess_960 = false;
 
+    std::string nnue_path = "master.nnue";
+
     std::string command;
 
     std::cout << "id name Random" << std::endl;
     std::cout << "id author Serdra" << std::endl;
     std::cout << "option name Hash type spin default 64 min 16 max 16384" << std::endl;
     std::cout << "option name UCI_Chess960 type check default false" << std::endl;
+    std::cout << "option name nnue_path type string default master.nnue" << std::endl;
     std::cout << "uciok" << std::endl;
 
     // Deals with option setting
@@ -56,10 +59,15 @@ void UCI() {
             if(lower(split[2]) == "UCI_Chess960") {
                 chess_960 = lower(split[4]) == "true";
             }
+
+            if(split[2] == "nnue_path") {
+                nnue_path = split[4];
+            }
         }
 
         else if(split[0] == "quit") return;
     }
+    VALUE_NN::init(nnue_path);
 
     chess::Board board;
     board.set960(chess_960);

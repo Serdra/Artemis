@@ -1,7 +1,6 @@
 #include "includes.hpp"
 
 int main(int, char**){
-    VALUE_NN::init("/home/ethan/Desktop/Programming/Artemis/build/master.bin");
     srand(time(0));
     std::string input;
     std::getline(std::cin, input);
@@ -9,10 +8,12 @@ int main(int, char**){
     if (input == "uci") UCI();
 
     else if(input == "datagen") {
+        VALUE_NN::init("master.nnue");
+
         int seed = rand();
         doPrinting = false;
 
-        DataWriter writer("iteration0.bin");
+        DataWriter writer("iteration1.bin");
         std::mutex mtx;
         int interval = 1;
         int num_threads = 8;
