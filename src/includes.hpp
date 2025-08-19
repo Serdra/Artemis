@@ -21,8 +21,6 @@
 #include "NNUE.hpp"
 #include "NNUE.cpp"
 
-#include "Eval.hpp"
-
 #include "Search.hpp"
 #include "Search.cpp"
 
