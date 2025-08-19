@@ -18,8 +18,26 @@ struct PUCTNode {
     uint16_t move;
     uint8_t num_children;
 
-    uint8_t flags; // Unused
+    uint8_t flags = 0; // Unused
     PUCTNode(){};
+
+    bool isSolved() {
+        return (flags & 0b11) != 0;
+    }
+
+    float getSolution() {
+        // Returns 1.0f for win, -1.0f for loss
+        return (flags & 1) ? 1.0f : -1.0f;
+    }
+
+    void setSolution(float value) {
+        flags &= 0b11111100;  // Clear solution bits
+        if (value == 1.0f) {
+            flags |= 1;  // Set bit 0 for win
+        } else if (value == -1.0f) {
+            flags |= 2;  // Set bit 1 for loss
+        }
+    }
 };
 
 // Used for PV and such

@@ -19,6 +19,10 @@ void PUCTTree::select(Path &path, chess::Board &board) {
         // If there are no children, this is a terminal node, so we break
         if(tree[curr].num_children == 0) break;
 
+        if(tree[curr].isSolved()) {
+            break;
+        }
+
         uint32_t best_child = -1;
         float best_child_value = -__FLT_MAX__;
 
@@ -63,6 +67,7 @@ void PUCTTree::expand(uint32_t node_to_expand, chess::Board &board) {
         tree[head + i].num_children = 0;
         tree[head + i].score = 0;
         tree[head + i].first_child = 0;
+        tree[head + i].flags = 0;
     }
 
     tree[node_to_expand].first_child = head;
@@ -71,10 +76,65 @@ void PUCTTree::expand(uint32_t node_to_expand, chess::Board &board) {
 }
 
 void PUCTTree::backup(Path &path, float value) {
+    // First, handle the leaf node
+    if (path.size > 0) {
+        int leaf_idx = path[path.size - 1];
+        if (value == 1.0f) {
+            tree[leaf_idx].setSolution(1.0f);
+        } else if (value == -1.0f) {
+            tree[leaf_idx].setSolution(-1.0f);
+        }
+    }
+    
+    // Standard backup propagation
     for(int i = path.size - 1; i >= 0; i--) {
         tree[path[i]].score += value;
         tree[path[i]].visits++;
         value = -value;
+    }
+    
+    // Mate proving: propagate solved states up the tree
+    for(int i = path.size - 1; i >= 1; i--) {
+        uint32_t node_idx = path[i];
+        PUCTNode &node = tree[node_idx];
+        
+        // Skip if already solved
+        if (node.isSolved()) {
+            continue;
+        }
+        
+        // Check if this node can be proven
+        bool has_losing_child = false;
+        bool all_children_solved = true;
+        bool all_solved_children_win = true;
+        
+        // Examine all children
+        for (int child_offset = 0; child_offset < node.num_children; child_offset++) {
+            uint32_t child_idx = node.first_child + child_offset;
+            PUCTNode &child = tree[child_idx];
+            
+            if (child.isSolved()) {
+                float child_solution = child.getSolution();
+                if (child_solution == -1.0f) { // Child is a loss (win for us)
+                    has_losing_child = true;
+                }
+                if (child_solution != 1.0f) { // Child is not a win
+                    all_solved_children_win = false;
+                }
+            } else {
+                all_children_solved = false;
+                all_solved_children_win = false;
+            }
+        }
+        
+        // If we found a losing child, this position is a win
+        if (has_losing_child) {
+            node.setSolution(1.0f);
+        }
+        // If all children are solved and they're all wins (for the child), this is a loss
+        else if (all_children_solved && node.num_children > 0 && all_solved_children_win) {
+            node.setSolution(-1.0f);
+        }
     }
 }
 
