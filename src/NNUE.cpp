@@ -49,6 +49,8 @@ float VALUE_NN::eval(chess::Board &pos, Accumulator &accumulator) {
             piece = chess::Piece(piece.type(), ~piece.color());
         }
 
+        if((pos.kingSq(pos.sideToMove()).index() % 8) < 4) sq ^= 7;
+
         int feature = ((int)piece * 64) + sq;
 
         for(int i = 0; i < HIDDEN_SIZE; i++) {
