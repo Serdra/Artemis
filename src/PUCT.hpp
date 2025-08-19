@@ -135,6 +135,7 @@ struct PUCTTree {
         tree[0].prior = 0;
         tree[0].score = 0;
         tree[0].visits = 0;
+        tree[0].flags = 0;
     }
 
     // The selection step for MCTS
