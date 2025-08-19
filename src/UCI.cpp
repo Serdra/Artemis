@@ -83,6 +83,10 @@ void UCI() {
                 }
                 board = chess::Board(fen, false);
             }
+            else if(split[i] == "startpos") {
+                board = chess::Board();
+                i = 2;
+            }
             if(split.size() > i && split[i] == "moves") {
                 i++;
                 while(split.size() > i) {
