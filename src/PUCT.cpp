@@ -19,7 +19,9 @@ void PUCTTree::select(Path &path, chess::Board &board) {
         // If there are no children, this is a terminal node, so we break
         if(tree[curr].num_children == 0) break;
 
-        if(tree[curr].isSolved()) break;
+        if(tree[curr].isSolved()) {
+            break;
+        }
 
         uint32_t best_child = -1;
         float best_child_value = -__FLT_MAX__;
@@ -74,33 +76,64 @@ void PUCTTree::expand(uint32_t node_to_expand, chess::Board &board) {
 }
 
 void PUCTTree::backup(Path &path, float value) {
-    // Handle the leaf node seperately, as we always update solution if necessary there
-    tree[path[path.size - 1]].score += value;
-    tree[path[path.size - 1]].visits++;
-    if(value == 1 || value == -1) {
-        tree[path[path.size - 1]].setSolution(value);
+    // First, handle the leaf node
+    if (path.size > 0) {
+        int leaf_idx = path[path.size - 1];
+        if (value == 1.0f) {
+            tree[leaf_idx].setSolution(1.0f);
+        } else if (value == -1.0f) {
+            tree[leaf_idx].setSolution(-1.0f);
+        }
     }
-    value = -value;
-
-    for(int i = path.size - 2; i >= 0; i--) {
+    
+    // Standard backup propagation
+    for(int i = path.size - 1; i >= 0; i--) {
         tree[path[i]].score += value;
         tree[path[i]].visits++;
         value = -value;
-
-        if(path[i] == 0) continue;
-
-        // We can set this automatically, without checking siblings
-        if(tree[path[i + 1]].isSolved() && tree[path[i + 1]].getSolution() == 1) {
-            tree[path[i]].setSolution(-1);
+    }
+    
+    // Mate proving: propagate solved states up the tree
+    for(int i = path.size - 1; i >= 1; i--) {
+        uint32_t node_idx = path[i];
+        PUCTNode &node = tree[node_idx];
+        
+        // Skip if already solved
+        if (node.isSolved()) {
+            continue;
         }
-
-        // We need to check that all moves are a loss to know that this node is a loss
-        if(tree[path[i + 1]].isSolved() && tree[path[i + 1]].getSolution() == -1) {
-            bool canSet = true;
-            for(int j = tree[path[i]].first_child; j < tree[path[i]].first_child + tree[path[i]].num_children; j++) {
-                if(!tree[j].isSolved() || tree[j].getSolution() != -1) canSet = false;
+        
+        // Check if this node can be proven
+        bool has_losing_child = false;
+        bool all_children_solved = true;
+        bool all_solved_children_win = true;
+        
+        // Examine all children
+        for (int child_offset = 0; child_offset < node.num_children; child_offset++) {
+            uint32_t child_idx = node.first_child + child_offset;
+            PUCTNode &child = tree[child_idx];
+            
+            if (child.isSolved()) {
+                float child_solution = child.getSolution();
+                if (child_solution == -1.0f) { // Child is a loss (win for us)
+                    has_losing_child = true;
+                }
+                if (child_solution != 1.0f) { // Child is not a win
+                    all_solved_children_win = false;
+                }
+            } else {
+                all_children_solved = false;
+                all_solved_children_win = false;
             }
-            if(canSet) tree[path[i]].setSolution(1);
+        }
+        
+        // If we found a losing child, this position is a win
+        if (has_losing_child) {
+            node.setSolution(1.0f);
+        }
+        // If all children are solved and they're all wins (for the child), this is a loss
+        else if (all_children_solved && node.num_children > 0 && all_solved_children_win) {
+            node.setSolution(-1.0f);
         }
     }
 }

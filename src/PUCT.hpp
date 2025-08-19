@@ -26,16 +26,17 @@ struct PUCTNode {
     }
 
     float getSolution() {
-        if(flags & 0b11 == 1) return 1;
-        return -1;
+        // Returns 1.0f for win, -1.0f for loss
+        return (flags & 1) ? 1.0f : -1.0f;
     }
 
-    // In theory, draws should be considered too. However the implementation of that is a bit annoying,
-    // and mates are more important anyway.
     void setSolution(float value) {
-        flags &= 0b11111100;
-        if(value == 1) flags ^= 1;
-        if(value == -1) flags ^= 2;
+        flags &= 0b11111100;  // Clear solution bits
+        if (value == 1.0f) {
+            flags |= 1;  // Set bit 0 for win
+        } else if (value == -1.0f) {
+            flags |= 2;  // Set bit 1 for loss
+        }
     }
 };
 
