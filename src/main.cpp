@@ -13,7 +13,7 @@ int main(int, char**){
         int seed = rand();
         doPrinting = false;
 
-        DataWriter writer("iteration2.bin");
+        DataWriter writer("iteration3.bin");
         std::mutex mtx;
         int interval = 1;
         int num_threads = 8;
