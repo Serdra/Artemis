@@ -5,8 +5,8 @@
 const int NUM_STARTING_PLY = 6;
 const int NODES = 10000;
 
-const float TEMPERATURE = 0.08125;
-const float TEMPERATURE_PLY = 10;
+const float TEMPERATURE = 0.125;
+const float TEMPERATURE_PLY = 12;
 
 struct WDL {
     uint64_t whiteWins = 0;
