@@ -1,10 +1,12 @@
 #pragma once
 #include "includes.hpp"
 
-float CPUCT = 2.76;
-float RootCPUCT = 7.50;
-float RootPST = 1.74;
-float PST = 1.06;
+float CPUCT = 2.76f;
+float RootCPUCT = 7.50f;
+float RootPST = 1.74f;
+float PST = 1.06f;
+
+float MATE_VALUE = 2.0f;
 
 // 20 bytes
 struct PUCTNode {
@@ -27,14 +29,14 @@ struct PUCTNode {
 
     float getSolution() {
         // Returns 1.0f for win, -1.0f for loss
-        return (flags & 1) ? 2.0f : -2.0f;
+        return (flags & 1) ? MATE_VALUE : -MATE_VALUE;
     }
 
     void setSolution(float value) {
         flags &= 0b11111100;  // Clear solution bits
-        if (value == 2.0f) {
+        if (value == MATE_VALUE) {
             flags |= 1;  // Set bit 0 for win
-        } else if (value == -2.0f) {
+        } else if (value == -MATE_VALUE) {
             flags |= 2;  // Set bit 1 for loss
         }
     }
