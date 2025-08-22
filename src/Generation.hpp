@@ -2,11 +2,11 @@
 #include "includes.hpp"
 
 // There's a 50% chance of an additional ply
-const int NUM_STARTING_PLY = 8;
+const int NUM_STARTING_PLY = 6;
 const int NODES = 10000;
 
 const float TEMPERATURE = 0.125;
-const float TEMPERATURE_PLY = 0;
+const float TEMPERATURE_PLY = 6;
 
 struct WDL {
     uint64_t whiteWins = 0;
