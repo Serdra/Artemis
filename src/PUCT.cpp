@@ -79,10 +79,10 @@ void PUCTTree::backup(Path &path, float value) {
     // First, handle the leaf node
     if (path.size > 0) {
         int leaf_idx = path[path.size - 1];
-        if (value == 1.0f) {
-            tree[leaf_idx].setSolution(1.0f);
-        } else if (value == -1.0f) {
-            tree[leaf_idx].setSolution(-1.0f);
+        if (value == 2.0f) {
+            tree[leaf_idx].setSolution(2.0f);
+        } else if (value == -2.0f) {
+            tree[leaf_idx].setSolution(-2.0f);
         }
     }
     
@@ -115,10 +115,10 @@ void PUCTTree::backup(Path &path, float value) {
             
             if (child.isSolved()) {
                 float child_solution = child.getSolution();
-                if (child_solution == -1.0f) { // Child is a loss (win for us)
+                if (child_solution == -2.0f) { // Child is a loss (win for us)
                     has_losing_child = true;
                 }
-                if (child_solution != 1.0f) { // Child is not a win
+                if (child_solution != 2.0f) { // Child is not a win
                     all_solved_children_win = false;
                 }
             } else {
@@ -129,11 +129,11 @@ void PUCTTree::backup(Path &path, float value) {
         
         // If we found a losing child, this position is a win
         if (has_losing_child) {
-            node.setSolution(1.0f);
+            node.setSolution(2.0f);
         }
         // If all children are solved and they're all wins (for the child), this is a loss
         else if (all_children_solved && node.num_children > 0 && all_solved_children_win) {
-            node.setSolution(-1.0f);
+            node.setSolution(-2.0f);
         }
     }
 }

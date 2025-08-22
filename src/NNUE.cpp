@@ -29,8 +29,8 @@ float VALUE_NN::eval(chess::Board &pos, Accumulator &accumulator) {
     std::pair<chess::GameResultReason, chess::GameResult> result = pos.isGameOver();
     if(result.second != chess::GameResult::NONE) {
         if(result.second == chess::GameResult::DRAW) return 0;
-        if(result.second == chess::GameResult::WIN) return 1;
-        return -1;
+        if(result.second == chess::GameResult::WIN) return 2;
+        return -2;
     }
 
     chess::Bitboard occ = pos.occ();

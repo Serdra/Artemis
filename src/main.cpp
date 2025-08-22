@@ -13,7 +13,7 @@ int main(int, char**){
         int seed = rand();
         doPrinting = false;
 
-        DataWriter writer("iteration4_2.bin");
+        DataWriter writer("iteration4_3.bin");
         std::mutex mtx;
         int interval = 1;
         int num_threads = 8;
@@ -38,6 +38,7 @@ int main(int, char**){
     }
 
     else {
+        VALUE_NN::init("dev.nnue");
         chess::Board b1("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         chess::Board b2("rnb1kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         chess::Board b3("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB1KBNR w KQkq - 0 1");
@@ -45,9 +46,9 @@ int main(int, char**){
 
         VALUE_NN::Accumulator acc;
 
-        std::cout << 200 * VALUE_NN::eval(b1, acc) << std::endl;
-        std::cout << 200 * VALUE_NN::eval(b2, acc) << std::endl;
-        std::cout << 200 * VALUE_NN::eval(b3, acc) << std::endl;
-        std::cout << 200 * VALUE_NN::eval(b4, acc) << std::endl;
+        std::cout << 200 * atanh(VALUE_NN::eval(b1, acc)) << std::endl;
+        std::cout << 200 * atanh(VALUE_NN::eval(b2, acc)) << std::endl;
+        std::cout << 200 * atanh(VALUE_NN::eval(b3, acc)) << std::endl;
+        std::cout << 200 * atanh(VALUE_NN::eval(b4, acc)) << std::endl;
     }
 }
