@@ -19,8 +19,8 @@
 #include "PUCT.hpp"
 #include "PUCT.cpp"
 
-#include "NNUE.hpp"
-#include "NNUE.cpp"
+#include "NN.hpp"
+#include "NN.cpp"
 
 #include "Search.hpp"
 #include "Search.cpp"
