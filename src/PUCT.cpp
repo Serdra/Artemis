@@ -55,6 +55,61 @@ void PUCTTree::select(Path &path, chess::Board &board) {
     }
 }
 
+void PUCTTree::select(Path &path, chess::Board &board, POLICY_NN::Accumulator &acc) {
+    path.clear();
+    uint32_t curr = 0;
+
+    while(true) {
+        path.add(curr);
+
+        // Leaf node, so we return
+        if(tree[curr].visits == 0) break;
+
+        // If this is a terminal node
+        if(board.isGameOver().first != chess::GameResultReason::NONE) break;
+
+        // We only expand on the second visit to save space and policy network calls
+        if(tree[curr].visits == 1) expand(curr, board, acc);
+
+        // If there are no children, this is a terminal node, so we break
+        if(tree[curr].num_children == 0) break;
+
+        if(tree[curr].isSolved()) {
+            break;
+        }
+
+        uint32_t best_child = -1;
+        float best_child_value = -__FLT_MAX__;
+
+        for(int i = tree[curr].first_child; i < tree[curr].first_child + tree[curr].num_children; i++) {
+            float child_value;
+            float child_exploration;
+
+
+            // If we have not explored the child, we use the parent's value as exploration
+            // Unless this is the root node, in which case we immediately select it
+            if(tree[i].visits == 0) {
+                if(curr == 0) child_value = 9999;
+                else child_value = (tree[curr].score / tree[curr].visits);
+            } else {
+                child_value = -(tree[i].score / tree[i].visits);
+            }
+
+            child_exploration = tree[i].prior * sqrt(tree[curr].visits) / (tree[i].visits + 1);
+            if(curr == 0) child_exploration *= RootCPUCT;
+            else child_exploration *= CPUCT;
+
+            if((child_exploration + child_value) > best_child_value) {
+                best_child_value = child_exploration + child_value;
+                best_child = i;
+            }
+        }
+
+        curr = best_child;
+        board.makeMove(tree[curr].move);
+    }
+}
+
 void PUCTTree::expand(uint32_t node_to_expand, chess::Board &board) {
     chess::Movelist moves;
     chess::movegen::legalmoves(moves, board);
@@ -68,6 +123,44 @@ void PUCTTree::expand(uint32_t node_to_expand, chess::Board &board) {
         tree[head + i].score = 0;
         tree[head + i].first_child = 0;
         tree[head + i].flags = 0;
+    }
+
+    tree[node_to_expand].first_child = head;
+    tree[node_to_expand].num_children = moves.size();
+    head += moves.size();
+}
+
+void PUCTTree::expand(uint32_t node_to_expand, chess::Board &board, POLICY_NN::Accumulator &acc) {
+    chess::Movelist moves;
+    chess::movegen::legalmoves(moves, board);
+
+    POLICY_NN::CalcAccumulator(board, acc);
+
+    float total_prior = 0;
+
+    for(int i = 0; i < moves.size(); i++) {
+        int move_idx = mapping::getMoveIndex(
+            moves[i],
+            board.sideToMove() == chess::Color::BLACK, 
+            (board.kingSq(board.sideToMove()).index() % 8) < 4
+        );
+
+        float prior = POLICY_NN::eval(acc, move_idx);
+
+        tree[head + i].move = moves[i].move();
+        tree[head + i].prior = exp(prior);
+        
+        tree[head + i].visits = 0;
+        tree[head + i].num_children = 0;
+        tree[head + i].score = 0;
+        tree[head + i].first_child = 0;
+        tree[head + i].flags = 0;
+
+        total_prior += exp(prior);
+    }
+
+    for(int i = 0; i < moves.size(); i++) {
+        tree[head + i].prior /= total_prior;
     }
 
     tree[node_to_expand].first_child = head;

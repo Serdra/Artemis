@@ -1,7 +1,9 @@
 #include "includes.hpp"
 
 chess::Move PUCTSearch(chess::Board pos, PUCTTree &tree, StopType stop_type, uint32_t stop_value) {
-    VALUE_NN::Accumulator acc;
+    VALUE_NN::Accumulator val_acc;
+    POLICY_NN::Accumulator pol_acc;
+
     tree.clear();
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -21,7 +23,7 @@ chess::Move PUCTSearch(chess::Board pos, PUCTTree &tree, StopType stop_type, uin
         chess::Board new_pos = pos;
 
         // Gets path
-        tree.select(path, new_pos);
+        tree.select(path, new_pos, pol_acc);
 
         // If node is already solved, there's no need to evaluate it
         if(tree[path[path.size - 1]].isSolved()) {
@@ -29,7 +31,7 @@ chess::Move PUCTSearch(chess::Board pos, PUCTTree &tree, StopType stop_type, uin
         }
         else {
             // Evaluates node
-            float value = VALUE_NN::eval(new_pos, acc);
+            float value = VALUE_NN::eval(new_pos, val_acc);
 
             // Backs up node
             tree.backup(path, value);
