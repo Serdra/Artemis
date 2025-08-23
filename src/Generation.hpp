@@ -26,10 +26,11 @@ chess::Bitboard flipVertical(chess::Bitboard x) {
             ( (x >> 56) );
 }
 // Packs a board into a compressed format
-ValuePackedBoard packBoard(chess::Board &board);
+ValuePackedBoard packValueBoard(chess::Board &board);
 
-// Generates a random starting position. In the future this will incorporate frc and dfrc positions
-chess::Board generateStartingPosition(xorshift &rng);
+PolicyPackedBoard packPolicyBoard(chess::Board &board);
 
-// The main data generation function. This can be spawned as many times as desired
-void generateData(DataWriter &writer, std::mutex &mtx, int &interval, WDL &wdl, xorshift rng);
+// The main data generation functions. This can be spawned as many times as desired
+void generateValueData(DataWriter &writer, std::mutex &mtx, int &interval, WDL &wdl, xorshift rng);
+
+void generatePolicyData(DataWriter &writer, std::mutex &mtx, int &interval, uint64_t &rejected, xorshift rng);

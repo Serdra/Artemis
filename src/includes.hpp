@@ -12,6 +12,7 @@
 #include <cstring>
 
 #include "chess/chess.hpp"
+#include "chess/mapping.hpp"
 
 #include "xorshift.hpp"
 
