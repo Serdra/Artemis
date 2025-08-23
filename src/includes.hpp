@@ -16,11 +16,11 @@
 
 #include "xorshift.hpp"
 
-#include "PUCT.hpp"
-#include "PUCT.cpp"
-
 #include "NN.hpp"
 #include "NN.cpp"
+
+#include "PUCT.hpp"
+#include "PUCT.cpp"
 
 #include "Search.hpp"
 #include "Search.cpp"

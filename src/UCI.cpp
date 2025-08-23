@@ -24,7 +24,8 @@ void UCI() {
     uint32_t hash = 64;
     bool chess_960 = false;
 
-    std::string nnue_path = "master.nnue";
+    std::string value_path = "master_value.nn";
+    std::string policy_path = "master_policy.nn";
 
     std::string command;
 
@@ -32,10 +33,12 @@ void UCI() {
     std::cout << "id author Serdra" << std::endl;
     std::cout << "option name Hash type spin default 64 min 16 max 16384" << std::endl;
     std::cout << "option name UCI_Chess960 type check default false" << std::endl;
-    std::cout << "option name nnue_path type string default master.nnue" << std::endl;
+    std::cout << "option name value_nn_path type string default master_value.nn" << std::endl;
+    std::cout << "option name policy_nn_path type string default master_value.nn" << std::endl;
     std::cout << "uciok" << std::endl;
 
-    VALUE_NN::init(nnue_path);
+    VALUE_NN::init(value_path);
+    POLICY_NN::init(policy_path);
 
     chess::Board board;
     board.set960(chess_960);
@@ -65,9 +68,14 @@ void UCI() {
                 chess_960 = lower(split[4]) == "true";
             }
 
-            if(split[2] == "nnue_path") {
-                nnue_path = split[4];
-                VALUE_NN::init(nnue_path);
+            if(split[2] == "value_nn_path") {
+                value_path = split[4];
+                VALUE_NN::init(value_path);
+            }
+
+            if(split[2] == "policy_nn_path") {
+                policy_path = split[4];
+                POLICY_NN::init(policy_path);
             }
         }
 

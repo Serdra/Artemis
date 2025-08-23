@@ -142,10 +142,11 @@ struct PUCTTree {
 
     // The selection step for MCTS
     void select(Path &path, chess::Board &board);
+    void select(Path &path, chess::Board &board, POLICY_NN::Accumulator &acc);
 
     // The expansion step for MCTS
-    // In the future, this will be integrated with the policy network
     void expand(uint32_t node_to_expand, chess::Board &board);
+    void expand(uint32_t node_to_expand, chess::Board &board, POLICY_NN::Accumulator &acc);
 
     // The backup step for MCTS
     void backup(Path &path, float value);

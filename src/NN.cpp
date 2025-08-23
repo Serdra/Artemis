@@ -70,3 +70,74 @@ float VALUE_NN::eval(chess::Board &pos, Accumulator &accumulator) {
 
     return tanh(output / (float)(Q1 * Q1 * Q2));
 }
+
+
+//////////////////////////////////////////////////////////////////
+
+
+void POLICY_NN::init(std::string fileName) {
+    float temp;
+    std::ifstream inFile(fileName, std::ios::in | std::ios::binary);
+
+    for(int i = 0; i < INPUT_SIZE; i++) {
+        for(int j = 0; j < HIDDEN_SIZE; j++) {
+            inFile.read((char*) &temp, sizeof(temp));
+            hiddenWeights[i][j] = std::round(Q1 * temp);
+        }
+    }
+
+    for(int i = 0; i < HIDDEN_SIZE; i++) {
+        inFile.read((char*) &temp, sizeof(temp));
+        hiddenBias[i] = std::round(Q1 * temp);
+    }
+
+    for(int i = 0; i < 1858; i++) {
+        for(int j = 0; j < HIDDEN_SIZE; j++) {
+            inFile.read((char*) &temp, sizeof(temp));
+            outputWeights[i][j] = std::round(Q2 * temp);
+        }
+    }
+
+    for(int i = 0; i < 1858; i++) {
+        inFile.read((char*) &temp, sizeof(temp));
+        outputBias[i] = std::round(Q1 * temp);
+    }
+}
+
+void POLICY_NN::CalcAccumulator(chess::Board &pos, Accumulator &accumulator) {
+    chess::Bitboard occ = pos.occ();
+
+    // Applies hidden bias
+    memcpy(accumulator.data, hiddenBias, sizeof(int16_t(0)) * HIDDEN_SIZE);
+
+    // Calculates the first layer
+    while(occ) {
+        int sq = occ.pop();
+        chess::Piece piece = pos.at(sq);
+
+        if(pos.sideToMove() == chess::Color::BLACK) {
+            sq ^= 56;
+            piece = chess::Piece(piece.type(), ~piece.color());
+        }
+
+        if((pos.kingSq(pos.sideToMove()).index() % 8) < 4) sq ^= 7;
+
+        int feature = ((int)piece * 64) + sq;
+
+        for(int i = 0; i < HIDDEN_SIZE; i++) {
+            accumulator.data[i] += hiddenWeights[feature][i];
+        }
+    }
+
+    for(int i = 0; i < HIDDEN_SIZE; i++) {
+        accumulator.data[i] = screlu(accumulator.data[i]);
+    }
+}
+
+float POLICY_NN::eval(Accumulator &acc, int move_idx) {
+    float output = outputBias[move_idx];
+    for(int i = 0; i < HIDDEN_SIZE; i++) {
+        output += acc.data[i] * outputWeights[move_idx][i];
+    }
+    return output / (float)(Q1 * Q1 * Q2);
+}
