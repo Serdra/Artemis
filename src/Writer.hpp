@@ -18,7 +18,7 @@ struct PolicyPackedMove {
 
     void write(uint16_t index, uint16_t visits) {
         uint32_t value = visits * 1858 + index;
-        v1 = value << 8;
+        v1 = value >> 8;
         v2 = value & 0xff;
     }
 } __attribute__((__packed__));
