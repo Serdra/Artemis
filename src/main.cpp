@@ -8,7 +8,8 @@ int main(int, char**){
     if (input == "uci") UCI();
 
     else if(input == "datagen-value") {
-        VALUE_NN::init("master.nnue");
+        VALUE_NN::init("master_value.nn");
+        POLICY_NN::init("master_policy.nn");
 
         int seed = rand();
         doPrinting = false;
@@ -38,7 +39,8 @@ int main(int, char**){
     }
 
     else if(input == "datagen-policy") {
-        VALUE_NN::init("master.nnue");
+        VALUE_NN::init("master_value.nn");
+        POLICY_NN::init("master_policy.nn");
 
         int seed = rand();
         doPrinting = false;
