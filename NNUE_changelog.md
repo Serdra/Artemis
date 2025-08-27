@@ -93,3 +93,13 @@ Ptnml(0-2): [27, 44, 90, 55, 72], WL/DD Ratio: 10.25
 LLR: 2.92 (101.1%) (-2.25, 2.89) [0.00, 10.00]
 --------------------------------------------------
 ```
+
+0.7.4 Policy 128hl-hm-v2 36m positions
+```
+Results of Artemis-dev vs Artemis-master (8+0.08, NULL, 64MB, noob_4moves.epd):
+Elo: 199.62 +/- 48.62, nElo: 238.82 +/- 46.55
+LOS: 100.00 %, DrawRatio: 27.10 %, PairsRatio: 10.14
+Games: 214, Wins: 148, Losses: 37, Draws: 29, Points: 162.5 (75.93 %)
+Ptnml(0-2): [3, 4, 29, 21, 50], WL/DD Ratio: 13.50
+LLR: 2.89 (100.1%) (-2.25, 2.89) [0.00, 10.00]
+```
