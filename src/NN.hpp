@@ -28,7 +28,7 @@ namespace VALUE_NN {
 
 namespace POLICY_NN {
     const int INPUT_SIZE = 768;
-    const int HIDDEN_SIZE = 128;
+    const int HIDDEN_SIZE = 256;
     const int Q1 = 181;
     const int Q2 = 255;
 
