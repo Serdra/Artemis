@@ -243,10 +243,10 @@ void PUCTTree::getPV(Path &path, int threshold) {
                 if(tree[i].prior > tree[best_node].prior) best_node = i;
             }
 
-            else if(tree[i].visits > tree[best_node].visits) best_node = i;
-
             // Otherwise, do the highest value move
             else if((tree[i].score / tree[i].visits) < (tree[best_node].score / tree[best_node].visits)) best_node = i;
+
+            // else if(tree[i].visits > tree[best_node].visits) best_node = i;
         }
         curr = best_node;
         path.add(curr);
